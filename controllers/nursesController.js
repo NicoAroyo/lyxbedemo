@@ -1,6 +1,8 @@
 import mySqlConnection from "../index.js";
 import cityController from "./cityController.js";
-import { validationResult } from "express-validator/check"; //returns our errors(/or not) from our validations in the router
+import { validationResult } from "express-validator/check/index.js"; //returns our errors(/or not) from our validations in the router
+import citiesRouter from "../routes/cities.js";
+import axios from "axios";
 
 export const nursesController = {
   //returns all nurses
@@ -21,19 +23,16 @@ export const nursesController = {
     );
   },
   getNurseByCity: (req, res) => {
-    const checkErr = validationResult(req);
-    if (!checkErr) {
-      const city_id = cityController.getCityIdByName(req);
-      console.log(city_id); //returns undefined *needs to be fixed
-      mySqlConnection.query(
-        `SELECT * FROM lyxbedemo.nurses WHERE lyxbedemo.nurses.city_id = ?`,
-        [city_id],
-        (err, row) => {
-          if (!err) res.json(row);
-          else res.json(err.code);
-        }
-      );
-    } else res.json([...checkErr]);
+    const city_id = axios.get(``);
+    console.log(city_id); //returns undefined *needs to be fixed
+    mySqlConnection.query(
+      `SELECT * FROM lyxbedemo.nurses WHERE lyxbedemo.nurses.city_id = ?`,
+      [city_id],
+      (err, row) => {
+        if (!err) res.json(row);
+        else res.json(err.code);
+      }
+    );
   },
   getNurseByName: (req, res) => {
     const checkErr = validationResult(req);

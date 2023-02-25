@@ -1,10 +1,11 @@
 import express from "express";
 import cors from "cors";
 import mySql from "mysql2";
-import nursesRouter from "./lib/routes/nurses.js";
+import nursesRouter from "./routes/nurses.js";
 import env from "dotenv";
 import { rateLimiterUsingThirdParty } from "./auth/middlewares/rateLimiter.js";
-import citiesRouter from "./lib/routes/cities.js";
+import citiesRouter from "./routes/cities.js";
+
 const app = express();
 const PORT = 3000;
 console.log("hi");
