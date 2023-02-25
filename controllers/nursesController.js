@@ -1,9 +1,5 @@
 import mySqlConnection from "../index.js";
-import citiesController from "./citiesController.js";
-import { validationResult } from "express-validator/check/index.js"; //returns our errors(/or not) from our validations in the router
-import citiesRouter from "../routes/cities.js";
 import { citiesService } from "../services/citiesService.js";
-import axios from "axios";
 
 export const nursesController = {
   //returns all nurses
@@ -36,34 +32,29 @@ export const nursesController = {
     );
   },
   getNurseByName: (req, res) => {
-    const checkErr = validationResult(req);
-    if (!checkErr) {
-      const name = req.params.name;
-      console.log(name);
-      mySqlConnection.query(
-        `SELECT * FROM lyxbedemo.nurses WHERE lyxbedemo.nurses.first_name LIKE ? OR lyxbedemo.nurses.last_name LIKE ?`,
-        ["%" + name + "%", "%" + name + "%"],
-        (err, rows, fields) => {
-          if (!err) res.json(rows);
-          else res.json(err.code);
-        }
-      );
-    } else res.json([...checkErr]);
+    const name = req.params.name;
+    console.log(name);
+    mySqlConnection.query(
+      `SELECT * FROM lyxbedemo.nurses WHERE lyxbedemo.nurses.first_name LIKE ? OR lyxbedemo.nurses.last_name LIKE ?`,
+      ["%" + name + "%", "%" + name + "%"],
+      (err, rows, fields) => {
+        console.log(rows);
+        if (!err) res.json(rows);
+        else res.json(err.code);
+      }
+    );
   },
   createNewNurse: async (req, res) => {
-    const checkErr = validationResult(req);
-    if (!checkErr) {
-      const cityName = req.params.city;
-      const city_id = await citiesService.getCityIdByName(cityName);
-      mySqlConnection.query(
-        `INSERT INTO  lyxbedemo.nurses VALUES (default, ? , ? , ?`,
-        [req.body.first_name, req.body.last_name, city_id],
-        (err) => {
-          if (!err) res.json("ok");
-          else res.json(err.code);
-        }
-      );
-    } else res.json([...checkErr]);
+    const cityName = req.params.city;
+    const city_id = await citiesService.getCityIdByName(cityName);
+    mySqlConnection.query(
+      `INSERT INTO  lyxbedemo.nurses VALUES (default, ? , ? , ?`,
+      [req.body.first_name, req.body.last_name, city_id],
+      (err) => {
+        if (!err) res.json("ok");
+        else res.json(err.code);
+      }
+    );
   },
   deleteNurse: (req, res) => {
     mySqlConnection.query(
@@ -77,37 +68,35 @@ export const nursesController = {
   },
   //updates the fields by which fields are passed in the request body and by the id in the request paramaters
   updateNurse: async (req, res) => {
-    const checkErr = validationResult(req);
-    if (!checkErr) {
-      if (req.body.city != null) {
-        const cityName = req.params.city;
-        const city_id = await citiesService.getCityIdByName(cityName);
+    if (req.body.city != null) {
+      const cityName = req.params.city;
+      const city_id = await citiesService.getCityIdByName(cityName);
 
-        mySqlConnection.query(
-          `UPDATE lyxbedemo.nurses
-              SET lyxbedemo.nurses.city_id = '${rows[0].city_id}'
+      mySqlConnection.query(
+        `UPDATE lyxbedemo.nurses
+              SET lyxbedemo.nurses.city_id = '${city_id}'
               WHERE lyxbedemo.nurses.nurse_id = ?`,
-          [req.params.id]
-        );
-      }
-      if (req.body.first_name != null) {
-        mySqlConnection.query(
-          `UPDATE lyxbedemo.nurses
+        [req.params.id]
+      );
+    }
+    if (req.body.first_name != null) {
+      mySqlConnection.query(
+        `UPDATE lyxbedemo.nurses
           SET lyxbedemo.nurses.first_name = ?
           WHERE lyxbedemo.nurses.nurse_id = ? `,
-          [req.body.first_name, req.params.id]
-        );
-      }
-      if (req.body.last_name != null) {
-        mySqlConnection.query(
-          `UPDATE lyxbedemo.nurses
+        [req.body.first_name, req.params.id]
+      );
+    }
+    if (req.body.last_name != null) {
+      mySqlConnection.query(
+        `UPDATE lyxbedemo.nurses
           SET lyxbedemo.nurses.last_name = ?
           WHERE lyxbedemo.nurses.nurse_id = ?`,
-          [req.body.last_name, req.params.id]
-        );
-      }
+        [req.body.last_name, req.params.id]
+      );
+
       res.json("ok");
-    } else res.json([...checkErr]);
+    }
   },
 };
 

@@ -1,7 +1,7 @@
 import express from "express";
 import mySqlConnection from "../index.js";
 import nursesController from "../controllers/nursesController.js";
-import { check } from "express-validator/check/index.js";
+import { check, validationResult } from "express-validator/check/index.js";
 export const nursesRouter = express.Router();
 
 nursesRouter.get("/", (req, res) => nursesController.getAllNurses(req, res));
@@ -20,9 +20,10 @@ nursesRouter.get(
 
 nursesRouter.get(
   "/byName/:name",
-  check("name").isString().notEmpty(),
+  check("name").notEmpty().matches("^[a-zA-Z ]+$"),
   (req, res) => {
-    nursesController.getNurseByName(req.res);
+    if (validationResult) nursesController.getNurseByName(req, res);
+    else res.json("");
   }
 );
 
