@@ -1,4 +1,4 @@
-import mySqlConnection from "../index.js";
+import mySqlConnection from "../../index.js";
 
 export const citiesService = {
   getCityIdByName: (name) => {

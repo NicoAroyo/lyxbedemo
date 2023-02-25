@@ -1,4 +1,4 @@
-import mySqlConnection from "../index.js";
+import mySqlConnection from "../../index.js";
 import express from "express";
 import { citiesService } from "../services/citiesService.js";
 
