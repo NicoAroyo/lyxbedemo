@@ -13,14 +13,14 @@ nursesRouter.get("/:id", (req, res) => {
 nursesRouter.get(
   "/byCity/:city",
   check("city").isString().notEmpty(),
-  (req, res) => {
-    nursesController.getNurseByCity(req, res);
+  async (req, res) => {
+    await nursesController.getNurseByCity(req, res);
   }
 );
 
 nursesRouter.get(
   "/byName/:name",
-  check("name").isString().notEmpty().matches(`/^[A-Za-z`),
+  check("name").isString().notEmpty(),
   (req, res) => {
     nursesController.getNurseByName(req.res);
   }
@@ -28,7 +28,7 @@ nursesRouter.get(
 
 nursesRouter.post(
   "/",
-  check("first_name", "last_name").isString().notEmpty().matches(`/^[A-Za-z`),
+  check("first_name", "last_name").isString().notEmpty(),
   (req, res) => {
     nursesController.createNewNurse(req, res);
   }
@@ -36,7 +36,7 @@ nursesRouter.post(
 
 nursesRouter.patch(
   "/:id",
-  check("first_name", "last_name", "city").isString().matches(`/^[A-Za-z`),
+  check("first_name", "last_name", "city").isString(),
   (req, res) => {
     nursesController.updateNurse(req, res);
   }

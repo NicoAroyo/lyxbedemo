@@ -1,7 +1,8 @@
 import mySqlConnection from "../index.js";
-import cityController from "./cityController.js";
+import citiesController from "./citiesController.js";
 import { validationResult } from "express-validator/check/index.js"; //returns our errors(/or not) from our validations in the router
 import citiesRouter from "../routes/cities.js";
+import { citiesService } from "../services/citiesService.js";
 import axios from "axios";
 
 export const nursesController = {
@@ -22,9 +23,9 @@ export const nursesController = {
       }
     );
   },
-  getNurseByCity: (req, res) => {
-    const city_id = axios.get(``);
-    console.log(city_id); //returns undefined *needs to be fixed
+  getNurseByCity: async (req, res) => {
+    const cityName = req.params.city;
+    const city_id = await citiesService.getCityIdByName(cityName);
     mySqlConnection.query(
       `SELECT * FROM lyxbedemo.nurses WHERE lyxbedemo.nurses.city_id = ?`,
       [city_id],
@@ -49,10 +50,11 @@ export const nursesController = {
       );
     } else res.json([...checkErr]);
   },
-  createNewNurse: (req, res) => {
+  createNewNurse: async (req, res) => {
     const checkErr = validationResult(req);
     if (!checkErr) {
-      const city_id = cityController.getCityIdByName(req.body.city); //city_id is undefined
+      const cityName = req.params.city;
+      const city_id = await citiesService.getCityIdByName(cityName);
       mySqlConnection.query(
         `INSERT INTO  lyxbedemo.nurses VALUES (default, ? , ? , ?`,
         [req.body.first_name, req.body.last_name, city_id],
@@ -74,23 +76,18 @@ export const nursesController = {
     );
   },
   //updates the fields by which fields are passed in the request body and by the id in the request paramaters
-  updateNurse: (req, res) => {
+  updateNurse: async (req, res) => {
     const checkErr = validationResult(req);
     if (!checkErr) {
       if (req.body.city != null) {
+        const cityName = req.params.city;
+        const city_id = await citiesService.getCityIdByName(cityName);
+
         mySqlConnection.query(
-          `SELECT * FROM lyxbedemo.cities WHERE lyxbedemo.cities.city_name = ? `,
-          [req.body.city], //cant use getCityIdByName
-          (err, rows) => {
-            if (!err) {
-              mySqlConnection.query(
-                `UPDATE lyxbedemo.nurses
+          `UPDATE lyxbedemo.nurses
               SET lyxbedemo.nurses.city_id = '${rows[0].city_id}'
               WHERE lyxbedemo.nurses.nurse_id = ?`,
-                [req.params.id]
-              );
-            }
-          }
+          [req.params.id]
         );
       }
       if (req.body.first_name != null) {
