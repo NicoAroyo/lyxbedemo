@@ -26,8 +26,8 @@ app.use(`/login`, loginRouter);
 
 //establishing database connection
 const mySqlConnection = mySql.createConnection({
-  host: "localhost",
-  user: "root",
+  host: process.env.DB_HOST,
+  user: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
   database: process.env.DB,
   multipleStatements: true,

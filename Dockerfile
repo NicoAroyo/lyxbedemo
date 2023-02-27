@@ -13,6 +13,8 @@ RUN npm install
 # Install nodemon globally
 RUN npm install -g nodemon
 
+RUN npm install mysql2
+
 # Copy the rest of the application code to the working directory
 COPY . .
 
