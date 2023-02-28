@@ -20,6 +20,7 @@ COPY . .
 
 # Expose the application port
 EXPOSE 3000
+EXPOSE 3306
 
 # Start the application using nodemon
 CMD ["nodemon", "app.js"]
