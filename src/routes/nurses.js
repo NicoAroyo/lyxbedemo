@@ -24,9 +24,10 @@ nursesRouter.get(
 
 nursesRouter.get(
   "/byName/:name",
-  check("name").notEmpty().matches("^[a-zA-Z ]+$"),
+  check("name").notEmpty().matches(new RegExp("/^[A-Za-z]*$/")),
   verifyAccessToken,
   (req, res) => {
+    console.log(validationResult);
     if (validationResult) nursesController.getNurseByName(req, res);
     else res.json(validationResult);
   }
@@ -34,7 +35,9 @@ nursesRouter.get(
 
 nursesRouter.post(
   "/",
-  check("first_name", "last_name").notEmpty().matches("^[a-zA-Z ]+$"),
+  check("first_name", "last_name")
+    .notEmpty()
+    .matches(new RegExp("^[a-zA-Z ]+$")),
   verifyAccessToken,
   (req, res) => {
     if (validationResult) nursesController.createNewNurse(req, res);
@@ -44,7 +47,7 @@ nursesRouter.post(
 
 nursesRouter.patch(
   "/:id",
-  check("first_name", "last_name", "city").matches("^[a-zA-Z ]+$"),
+  check("first_name", "last_name", "city").matches(new RegExp("^[a-zA-Z ]+$")),
   verifyAccessToken,
   (req, res) => {
     if (validationResult) nursesController.updateNurse(req, res);
