@@ -1,102 +1,66 @@
 import mySqlConnection from "../../index.js";
 import { citiesService } from "../services/citiesService.js";
+import { nursesService } from "../services/nursesService.js";
 
 export const nursesController = {
   //returns all nurses
-  getAllNurses: (req, res) =>
-    mySqlConnection.query(`SELECT * FROM lyxbedemo.nurses`, (err, rows) => {
-      if (!err) res.json(rows);
-      else res.json(err.code);
-    }),
+  getAllNurses: async (req, res) => await nursesService.getAllNurses(res),
   //get a specific nurse by her id
-  getNurseById: (req, res) => {
-    mySqlConnection.query(
-      `SELECT * FROM lyxbedemo.nurses WHERE lyxbedemo.nurses.nurse_id = ?`,
-      [req.params.id],
-      (err, rows) => {
-        if (!err) res.json(rows);
-        else res.json(err.code);
-      }
-    );
+  getNurseById: async (req, res) => {
+    const rows = await nursesService.getNurseById(req.params.id);
+    res.json(rows);
   },
   getNurseByCity: async (req, res) => {
     const cityName = req.params.city;
-    const city_id = await citiesService.getCityIdByName(cityName);
-    mySqlConnection.query(
-      `SELECT * FROM lyxbedemo.nurses WHERE lyxbedemo.nurses.city_id = ?`,
-      [city_id],
-      (err, row) => {
-        if (!err) res.json(row);
-        else res.json(err.code);
-      }
-    );
+    const cityId = await citiesService.getCityIdByName(cityName);
+    const rows = await nursesService.getNurseByCity(cityId);
+    res.json(rows);
   },
-  getNurseByName: (req, res) => {
+  getNurseByName: async (req, res) => {
     const name = req.params.name;
-    console.log(name);
-    mySqlConnection.query(
-      `SELECT * FROM lyxbedemo.nurses WHERE lyxbedemo.nurses.first_name LIKE ? OR lyxbedemo.nurses.last_name LIKE ?`,
-      ["%" + name + "%", "%" + name + "%"],
-      (err, rows, fields) => {
-        console.log(rows);
-        if (!err) res.json(rows);
-        else res.json(err.code);
-      }
-    );
+    const rows = await nursesService.getNurseByName(name);
+    res.json(rows);
   },
   createNewNurse: async (req, res) => {
     const cityName = req.params.city;
-    const city_id = await citiesService.getCityIdByName(cityName);
-    mySqlConnection.query(
-      `INSERT INTO  lyxbedemo.nurses VALUES (default, ? , ? , ?`,
-      [req.body.first_name, req.body.last_name, city_id],
-      (err) => {
-        if (!err) res.json("ok");
-        else res.json(err.code);
-      }
+    const cityId = await citiesService.getCityIdByName(cityName);
+    const firstName = req.body.first_name;
+    const lastName = req.body.last_name;
+    const rows = await nursesService.createNewNurse(
+      firstName,
+      lastName,
+      cityId
     );
+    res.json(rows);
   },
-  deleteNurse: (req, res) => {
-    mySqlConnection.query(
-      `DELETE FROM lyxbedemo.nurses WHERE nurse_id = ?`,
-      [req.params.id],
-      (err) => {
-        if (!err) res.json("ok");
-        else res.json(err.code);
-      }
-    );
+  deleteNurse: async (req, res) => {
+    const rows = await nursesService.deleteNurse(req.params.id);
+    res.json(rows);
   },
   //updates the fields by which fields are passed in the request body and by the id in the request paramaters
   updateNurse: async (req, res) => {
+    let rows = [];
     if (req.body.city != null) {
       const cityName = req.params.city;
-      const city_id = await citiesService.getCityIdByName(cityName);
-
-      mySqlConnection.query(
-        `UPDATE lyxbedemo.nurses
-              SET lyxbedemo.nurses.city_id = '${city_id}'
-              WHERE lyxbedemo.nurses.nurse_id = ?`,
-        [req.params.id]
-      );
+      const cityId = await citiesService.getCityIdByName(cityName);
+      const newRow = await nursesService.updateNurseCity(cityId, req.params.id);
+      rows.push(newRow);
     }
     if (req.body.first_name != null) {
-      mySqlConnection.query(
-        `UPDATE lyxbedemo.nurses
-          SET lyxbedemo.nurses.first_name = ?
-          WHERE lyxbedemo.nurses.nurse_id = ? `,
-        [req.body.first_name, req.params.id]
+      const newRow = await nursesService.updateNurseFirstName(
+        req.body.first_name,
+        req.params.id
       );
+      rows.push(newRow);
     }
     if (req.body.last_name != null) {
-      mySqlConnection.query(
-        `UPDATE lyxbedemo.nurses
-          SET lyxbedemo.nurses.last_name = ?
-          WHERE lyxbedemo.nurses.nurse_id = ?`,
-        [req.body.last_name, req.params.id]
+      const newRow = await nursesService.updateNurseLastName(
+        req.body.last_name,
+        req.params.id
       );
-
-      res.json("ok");
+      rows.push(newRow);
     }
+    res.json(...rows);
   },
 };
 
